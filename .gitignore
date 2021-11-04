@@ -1,5 +1,5 @@
 # output
-*.tex
+report.tex
 
 # API response
 airports.xml

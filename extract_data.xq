@@ -39,8 +39,7 @@ declare function local:airportName($airportCode as element()) as node() {
 {
     if($error != 0)
     then()
-        (:error:)
-    else {
+    else 
     let $values:=
         for $response in doc("flights.xml")/root/response/response
         order by $response/hex
@@ -82,6 +81,6 @@ declare function local:airportName($airportCode as element()) as node() {
                 else()
             }
         </flight>
-    }
+    
 }
 </flights_data>

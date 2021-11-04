@@ -43,4 +43,6 @@ echo -e "[INFO] Descargando countries.xml\n"
 echo -e "[INFO] Descargando flights.xml\n"
 # `curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml`
 
-`java net.sf.saxon.Query ./extract_data.xq qty=${qty} includeAll=0 > ./flights_data.xml`
+`java net.sf.saxon.Query ./extract_data.xq qty=${qty} includeAll=0 error=0 > ./flights_data.xml`
+
+`java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex`
