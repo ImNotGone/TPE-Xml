@@ -1,0 +1,8 @@
+# output
+*.tex
+
+# API response
+airports.xml
+countries.xml
+flights.xml
+flights_data.xml
