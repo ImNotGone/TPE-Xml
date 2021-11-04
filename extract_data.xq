@@ -1,41 +1,46 @@
 declare variable $qty external;
 declare variable $includeAll external;
+declare variable $error external;
 
 declare function local:airportCountry($airportCode as element()) as node() {
-    <country>
-    {
-        let $countryCode:= 
+
+        let $countryCode:= ( 
             for $airport in doc("airports.xml")/root/response/response
             where $airport/iata_code = $airportCode
-            return $airport/country_code
+            return $airport/country_code)[1]
         
-        for $country in doc("countries.xml")/root/response/response
-        where $country/code = $countryCode    
-        return $country/name/text()
-    }
-    </country>
+        let $sec:=
+            for $country in doc("countries.xml")/root/response/response
+            where $country/code = $countryCode    
+            return $country/name/text()
+        return    
+        if (not($sec))
+        then
+            <country/>
+        else
+            <country>
+                $sec[1]
+            </country>
 };
 
-(:
 declare function local:airportName($airportCode as element()) as node() {
-    for $airportData in doc("airports.xml")/root/response/response
-    where $airportData/iata_code = $airportCode
-    return $airportData/name
-};
-
-declare function local:createAirportNode($airport as element(), $type as xs:QName) as node() {
-    if($airport)
+    let $sec:=
+        for $airportData in doc("airports.xml")/root/response/response
+        where $airportData/iata_code = $airportCode
+        return $airportData/name
+    return
+    if (not($sec))
     then
-        <>
-            {local:airportCountry($airport)}
-            {local:airportName($airport)}
-        </xdmp:unquote($type)>
+        <name/>
     else
-        <error> Could note create $type node</error>
+        $sec[1] 
 };
-:)
 <flights_data>
 {
+    if($error != 0)
+    then()
+        (:error:)
+    else {
     let $values:=
         for $response in doc("flights.xml")/root/response/response
         order by $response/hex
@@ -57,45 +62,26 @@ declare function local:createAirportNode($airport as element(), $type as xs:QNam
                 {$fresponse/lng}
             </position>
             {$fresponse/status}
+            
             {
-                if ($fresponse/dep_iata)
+                if($fresponse/dep_iata)
                 then
                     <departure_airport>
                         {local:airportCountry($fresponse/dep_iata)}
-                        {
-                            for $airportData in doc("airports.xml")/root/response/response
-                            where $airportData/iata_code = $fresponse/dep_iata
-                            return $airportData/name
-                        }
+                        {local:airportName($fresponse/dep_iata)}
                     </departure_airport>
-                else
-                    <error> Could note create departure_airport node</error>
+                else()
             }
             {
-                if ($fresponse/arr_iata)
+                if($fresponse/arr_iata)
                 then
                     <arrival_airport>
-                        <country>
-                        {
-                            let $airportCode:= 
-                                for $airport in doc("airports.xml")/root/response/response
-                                where $airport/iata_code = $fresponse/arr_iata
-                                return $airport/country_code
-                            
-                            for $country in doc("countries.xml")/root/response/response
-                            where $country/code = $airportCode    
-                            return $country/name/text()
-                        }
-                        </country>
-                        {
-                            for $airportData in doc("airports.xml")/root/response/response
-                            where $airportData/iata_code = $fresponse/arr_iata
-                            return $airportData/name
-                        }
+                        {local:airportCountry($fresponse/arr_iata)}
+                        {local:airportName($fresponse/arr_iata)}
                     </arrival_airport>
-                else
-                    <error>Could note create arrival_airport node</error>
+                else()
             }
         </flight>
+    }
 }
 </flights_data>
