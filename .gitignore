@@ -1,8 +1,10 @@
-# output
-report.tex
-
 # API response
 airports.xml
 countries.xml
 flights.xml
+
+# xQuery output
 flights_data.xml
+
+# XSLT output
+report.tex

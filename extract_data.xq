@@ -1,6 +1,6 @@
 declare variable $qty external;
-declare variable $includeAll external;
-declare variable $error external;
+declare variable $ALL_VALUES external;
+declare variable $errno external;
 
 declare function local:airportCountry($airportCode as element()) as node() {
 
@@ -12,14 +12,14 @@ declare function local:airportCountry($airportCode as element()) as node() {
         let $sec:=
             for $country in doc("countries.xml")/root/response/response
             where $country/code = $countryCode    
-            return $country/name/text()
+            return $country/name
         return    
         if (not($sec))
         then
             <country/>
         else
             <country>
-                $sec[1]
+                {$sec[1]/text()}
             </country>
 };
 
@@ -37,16 +37,29 @@ declare function local:airportName($airportCode as element()) as node() {
 };
 <flights_data>
 {
-    if($error != 0)
-    then()
-    else 
+    if($errno = 1)
+    then
+        <error>El numero decimal recibido debe ser mayor que 0</error>
+    else
+    if($errno = 2)
+    then
+        <error>El argumento recibido no es un numero decimal</error>
+    else
+    if($errno = 3)
+    then
+        <error>Cantidad de argumentos excedente</error>
+    else
+    if($errno != 0)
+    then
+        <error>Unknown error</error>
+    else
     let $values:=
         for $response in doc("flights.xml")/root/response/response
         order by $response/hex
         return $response
 
     for $fresponse at $index in $values
-    where $index <= $qty or $qty = $includeAll
+    where $index <= $qty or $qty = $ALL_VALUES
     return 
         <flight id="{$fresponse/hex}">
             <country>
