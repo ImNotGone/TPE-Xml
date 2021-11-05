@@ -2,11 +2,22 @@
     <xsl:output method="text"/> 
 
     <xsl:template match="/">
-        <xsl:call-template name="getTitle" />
-        <xsl:call-template name="getTable"/> 
-        <xsl:text>
+    <xsl:choose>
+        <xsl:when test="//flights_data/error">
+            \documentclass[a4paper, 10pt]{minimal}
+            \begin{document}
+            An error was found while processing data and the report could not be generated properly. The error found was the following: "<xsl:value-of select="//flights_data/error"/>"
             \end{document}
-        </xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:call-template name="getTitle" />
+            <xsl:call-template name="getTable"/> 
+            <xsl:text>
+                \end{document}
+            </xsl:text>
+        </xsl:otherwise>    
+    </xsl:choose>
+        
     </xsl:template>
 
     <xsl:template name="getTitle">

@@ -71,7 +71,7 @@ then
   
   case $errno in
   1) echo -e "${orange}[DESC ] Decimal number must be greater than 0${white}";;
-  2) echo -e "${orange}[DESC ] The argument recived was not a decimal number${white}";;
+  2) echo -e "${orange}[DESC ] The argument received was not a decimal number${white}";;
   3) echo -e "${orange}[DESC ] Maximum argument count exceeded${white}";;
   *) echo -e "${orange}[DESC ] Unknown error${white}";;
   esac

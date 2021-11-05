@@ -43,7 +43,7 @@ declare function local:airportName($airportCode as element()) as node() {
     else
     if($errno = 2)
     then
-        <error>The argument recived was not a decimal number</error>
+        <error>The argument received was not a decimal number</error>
     else
     if($errno = 3)
     then
