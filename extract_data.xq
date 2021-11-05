@@ -39,15 +39,15 @@ declare function local:airportName($airportCode as element()) as node() {
 {
     if($errno = 1)
     then
-        <error>El numero decimal recibido debe ser mayor que 0</error>
+        <error>Decimal number must be greater than 0</error>
     else
     if($errno = 2)
     then
-        <error>El argumento recibido no es un numero decimal</error>
+        <error>The argument recived was not a decimal number</error>
     else
     if($errno = 3)
     then
-        <error>Cantidad de argumentos excedente</error>
+        <error>Maximum argument count exceeded</error>
     else
     if($errno != 0)
     then
