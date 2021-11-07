@@ -1,6 +1,8 @@
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:param name="qty" required="yes"/>
+    <xsl:param name="ALL_VALUES" required="yes"/>
+    
     <xsl:output method="text"/> 
-
     <xsl:template match="/">
     <xsl:choose>
         <xsl:when test="//flights_data/error">
@@ -47,6 +49,7 @@
     <xsl:template name="getTable">
         <xsl:call-template name="getTableHeader"/>
         <xsl:for-each select="//flights_data/flight">
+            <xsl:if test="position() &lt;= $qty or $qty = $ALL_VALUES">
                 <xsl:call-template name="getTableRow">
                     <xsl:with-param name="country" select="country" />
                     <xsl:with-param name="position" select="position" />
@@ -54,7 +57,8 @@
                     <xsl:with-param name="departure_airport" select="departure_airport/name" />
                     <xsl:with-param name="arrival_airport" select="arrival_airport/name" />
                     <xsl:with-param name="id" select="./@id" />
-            </xsl:call-template>
+                </xsl:call-template>
+            </xsl:if>
         </xsl:for-each>
         <xsl:text>
             \end{longtable}

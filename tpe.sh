@@ -8,17 +8,16 @@ is_decimal_num(){
   validates $1 '^-?[0-9]+$'
   return $?
 }
+
 is_decimal_positive() {
   validates $1 '^[1-9][0-9]*$'
   return $?
 }
-if [ -e ./colores.sh ]
-then
-  source ./colores.sh
-else
-  echo -e "Por favor descargue el archivo \"colores.sh\" del repositorio\n"
-  exit 1
-fi
+
+white="\e[m"
+red="\e[31m"
+green="\e[32m"
+orange="\e[38;5;208m"
 
 errno=0
 declare -r ALL_VALUES=0
@@ -52,16 +51,15 @@ then
   echo -e "${green}[INFO ]${white} Downloading flights.xml"
   # `curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml`
 else
-
   echo -e "${red}[ERROR]${white} Api data won't be downloaded, no data will be processed"
 fi
 
 echo -e "${green}[INFO ]${white} Processing *.xml"
-`java net.sf.saxon.Query ./extract_data.xq qty=${qty} ALL_VALUES=${ALL_VALUES} errno=${errno} > ./flights_data.xml`
+`java net.sf.saxon.Query ./extract_data.xq errno=${errno} > ./flights_data.xml`
 echo -e "${green}[INFO ]${white} File flights_data.xml created"
 
 echo -e "${green}[INFO ]${white} Processing flights_data.xml"
-`java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex`
+`java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex qty=${qty} ALL_VALUES=${ALL_VALUES}`
 echo -e "${green}[INFO ]${white} File report.tex created"
 
 if [ $errno -ne 0 ]
@@ -71,7 +69,7 @@ then
   
   case $errno in
   1) echo -e "${orange}[DESC ] Decimal number must be greater than 0${white}";;
-  2) echo -e "${orange}[DESC ] The argument received was not a decimal number${white}";;
+  2) echo -e "${orange}[DESC ] The argument recived was not a decimal number${white}";;
   3) echo -e "${orange}[DESC ] Maximum argument count exceeded${white}";;
   *) echo -e "${orange}[DESC ] Unknown error${white}";;
   esac
