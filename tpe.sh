@@ -27,7 +27,7 @@ case $# in
 1) 
   if is_decimal_num $1
   then
-    if is_decimal_positive $1
+    if [ $1 -ge 0 ]
     then
       qty=$1
     else
