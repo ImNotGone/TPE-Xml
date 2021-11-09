@@ -36,7 +36,7 @@ case $# in
       errno=1
     fi
   else
-    desc="The argument recived was not a decimal number"
+    desc="The argument received was not a decimal number"
     errno=2
   fi
   ;;

@@ -8,7 +8,7 @@
         <xsl:when test="//flights_data/error">
             \documentclass[a4paper, 10pt]{minimal}
             \begin{document}
-            An error was found while processing data and the report could not be generated properly. The error found was the following: "<xsl:value-of select="//flights_data/error"/>"
+            An error was found while processing data and the report could not be generated properly. The error found was the following: "\verb|<xsl:value-of select="//flights_data/error"/>|"
             \end{document}
         </xsl:when>
         <xsl:otherwise>
@@ -37,14 +37,7 @@
         </xsl:text>
     </xsl:template>
 
-    <xsl:template name="getTableHeader">
-        <xsl:text>
-            \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
-            \hline
-            Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
-            \hline
-        </xsl:text>
-    </xsl:template>
+
 
     <xsl:template name="getTable">
         <xsl:call-template name="getTableHeader"/>
@@ -65,6 +58,15 @@
         </xsl:text>
     </xsl:template>
    
+    <xsl:template name="getTableHeader">
+        <xsl:text>
+            \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
+            \hline
+            Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
+            \hline
+        </xsl:text>
+    </xsl:template>
+    
     <xsl:template name="getTableRow">
         <xsl:param name="country" />
         <xsl:param name="position" />

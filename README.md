@@ -215,13 +215,13 @@ La transformación comienza determinando si se va a generar el reporte o si se v
 ``` xsl
 <xsl:template match="/">
 ```
-Si se encuentra algun nodo error, esto implica que ocurrió un error en el programa, por lo tanto no corresponde generar el reporte. Solamente se genera texto explicando el error obtenido.
+Si se encuentra algun nodo error, esto implica que ocurrió un error en el programa, por lo tanto no corresponde generar el reporte. Solamente se genera texto explicando el error obtenido. El comando *\verb|...|* permite escapar caracteres reservados de latex como el "*_*" que se necesita en un mensaje de error.
 ```xsl    
 <xsl:choose>
     <xsl:when test="//flights_data/error">
         \documentclass[a4paper, 10pt]{minimal}
         \begin{document}
-        An error was found while processing data and the report could not be generated properly. The error found was the following: "<xsl:value-of select="//flights_data/error"/>"
+        An error was found while processing data and the report could not be generated properly. The error found was the following: "\verb|<xsl:value-of select="//flights_data/error"/>|"
         \end{document}
     </xsl:when>
 ```
