@@ -1,3 +1,6 @@
+declare -r WHITE="\e[m"
+declare -r GREEN="\e[32m"
+
 echo -e "${GREEN}[INFO ]${WHITE} Processing report.tex"
 `pdflatex.exe report.tex &>/dev/null`
 `rm -rf report.aux`
