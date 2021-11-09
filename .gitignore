@@ -8,3 +8,6 @@ flights_data.xml
 
 # XSLT output
 report.tex
+
+# extra
+report.pdf

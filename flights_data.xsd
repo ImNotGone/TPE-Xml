@@ -8,7 +8,6 @@
    </xsd:choice>
  </xsd:complexType>
 
-
  <xsd:complexType name="flightT">
     <xsd:sequence>
         <xsd:element name="country" minOccurs="0" type="xsd:string"/>
