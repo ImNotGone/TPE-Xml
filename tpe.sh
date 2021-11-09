@@ -60,14 +60,6 @@ echo -e "${GREEN}[INFO ]${WHITE} Processing flights_data.xml"
 `java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex qty=${qty} ALL_VALUES=${ALL_VALUES}`
 echo -e "${GREEN}[INFO ]${WHITE} File report.tex created"
 
-# Esto transformaria el reporte.tex en un reporte.pdf utilizando MikteX
-# Como es un agregado a lo pedido por la catedra, decidimos pasarlo a un archivo extra
-#echo -e "${GREEN}[INFO ]${WHITE} Processing report.tex"
-#`pdflatex.exe report.tex &>/dev/null`
-#`rm -rf report.aux`
-#`rm -rf report.log`
-#echo -e "${GREEN}[INFO ]${WHITE} File report.pdf created"
-
 if [ $errno -ne 0 ]
 then
   echo -e "\n${RED}[ERROR]${WHITE} Data was not processed correcty, errors were reported"
