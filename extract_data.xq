@@ -16,16 +16,13 @@ declare function local:buildAirport($iata as element()) as node()* {
     if($errno = 1)
     then
         <error>Decimal number must be greater than 0</error>
-    else
-    if($errno = 2)
+    else if($errno = 2)
     then
         <error>The argument recived was not a decimal number</error>
-    else
-    if($errno = 3)
+    else if($errno = 3)
     then
         <error>Maximum argument count exceeded</error>
-    else
-    if($errno != 0)
+    else if($errno != 0)
     then
         <error>Unknown error</error>
     else
@@ -33,7 +30,7 @@ declare function local:buildAirport($iata as element()) as node()* {
     order by $fresponse/hex
     return 
         <flight id="{$fresponse/hex}">
-            <country>{(doc("countries.xml")/root/response/response[./code = $fresponse/flag]/name/text())[1]}</country>
+            <country>{(doc("countries.xml")/root/response/response[./code = $fresponse/flag]/name)[1]/text()}</country>
             <position>
                 {$fresponse/lat}
                 {$fresponse/lng}
