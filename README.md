@@ -40,12 +40,16 @@ declare -r WHITE="\e[m"
 declare -r RED="\e[31m"
 declare -r GREEN="\e[32m"
 declare -r ORANGE="\e[38;5;208m"
+declare -r RETURN="\e[1A\e[K"
 ```
-Iniciamos la variable `errno` en 0, indicando de esta manera q no hay errores e ininciamos `qty` con el valor de la constante `ALL_VALUES`. Luego nos fijamos la cantidad de argumentos que recibimos del usuario (`$#`). Si la cantidad es 0, no hacemos nada y se procesa toda la información recibida. Si la cantidad es 1, verificamos que el parametro sea un numero positivo, sino actualizamos `errno` y los datos no se procesaran. Si la cantidad es mayor a 1, tambien actualizamos `errno` y los datos no van a ser procesados.
+Iniciamos la variable `errno` en 0 y `desc` en "no error", indicando de esta manera q no hay errores e ininciamos `qty` con el valor de la constante `ALL_VALUES`. Luego nos fijamos la cantidad de argumentos que recibimos del usuario (`$#`). Si la cantidad es 0, no hacemos nada y se procesa toda la información recibida. Si la cantidad es 1, verificamos que el parametro sea un numero positivo, sino actualizamos `errno` y `desc` por lo que los datos no se procesaran. Si la cantidad es mayor a 1, tambien actualizamos `errno` y `desc` por lo que los datos tampoco serán procesados.
 
-En caso de que el usuario envíe correctamente un único numero positivo como parametro se lo asignamos a `qty` (`qty=$1`)
+En caso de que el usuario envíe correctamente un único numero positivo como parametro se lo asignamos a `qty` (`qty=$1`).
+
+Finalmente, si no se encuentra declarada la variable `AIRLABS_API_KEY` que contiene la clave para acceder al api de airlabs, se actualizan `errno` y `desc`, los datos tampoco serán procesados si esto se cumple.
 ```sh
 errno=0
+desc="no error"
 qty=$ALL_VALUES
 case $# in
 0);; 
@@ -56,52 +60,57 @@ case $# in
     then
       qty=$1
     else
+      desc="Decimal number must be greater than 0"
       errno=1
     fi
   else
+    desc="The argument received was not a decimal number"
     errno=2
   fi
   ;;
-*) errno=3 ;;
+*) desc="Maximum argument count exceeded"; errno=3 ;;
 esac
+
+if [ -z $AIRLABS_API_KEY ]
+then
+  desc="AIRLABS_API_KEY not defined, please set your api key as an enviroment variable"
+  errno=4
+fi
 ```
 Una vez terminadas las validaciones, verificamos que no hubiese ningun error y en ese caso descargamos todos los archivos de la API. Si hubo algun error, no descargamos nada y notificamos al usuario de lo mismo.
 ```sh
 if [ $errno -eq 0 ]
 then
-  echo -e "${GREEN}[INFO ]${WHITE} Downloading airports.xml"
-  `curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml`
-  echo -e "${GREEN}[INFO ]${WHITE} Downloading countries.xml"
-  `curl https://airlabs.co/api/v9/countries.xml?api_key=${AIRLABS_API_KEY} > countries.xml`
-  echo -e "${GREEN}[INFO ]${WHITE} Downloading flights.xml"
-  `curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml`
+  echo -e "${GREEN}[INFO ]${WHITE} Downloading airports data ..." 
+  curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml -s
+  echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File airports.xml \t created"
+  echo -e "${GREEN}[INFO ]${WHITE} Downloading countries data ..." 
+  curl https://airlabs.co/api/v9/countries.xml?api_key=${AIRLABS_API_KEY} > countries.xml -s
+  echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File countries.xml \t created"
+  echo -e "${GREEN}[INFO ]${WHITE} Downloading flights data ..." 
+  curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml -s
+  echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights.xml \t created"
 else
   echo -e "${RED}[ERROR]${WHITE} Api data won't be downloaded, errors will be reported"
 fi
 ```
 Luego hacemos los llamados a *extract_data.xq* y a *generate_report.xsl* pasandole las variables necesarias para su correcto funcionamieto. A *extract_data.xq* le pasamos `errno` para que verifique si hubo algun error y a *generate_report.xsl* le pasamos `qty` y `ALL_VALUES` para que limite o no la información en la salida.
 ```sh
-echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml"
-`java net.sf.saxon.Query ./extract_data.xq errno=${errno} > ./flights_data.xml`
-echo -e "${GREEN}[INFO ]${WHITE} File flights_data.xml created"
+echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
+java net.sf.saxon.Query ./extract_data.xq errno=${errno} desc="${desc}"> ./flights_data.xml
+echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights_data.xml \t created"
 
-echo -e "${GREEN}[INFO ]${WHITE} Processing flights_data.xml"
-`java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex qty=${qty} ALL_VALUES=${ALL_VALUES}`
-echo -e "${GREEN}[INFO ]${WHITE} File report.tex created"
+echo -e "${GREEN}[INFO ]${WHITE} Processing flights_data.xml ..."
+java net.sf.saxon.Transform -s:flights_data.xml -xsl:generate_report.xsl -o:report.tex qty=${qty} ALL_VALUES=${ALL_VALUES}
+echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File report.tex \t created"
 ```
-Una vez terminada la ejecución de *extract_data.xq* y de *generate_report.xsl*, notificamos al usuario, cual fue el error cometido, si es que hubo alguno. Si no imprimimos a salida estandar que no hubo errores.
+Una vez terminada la ejecución de *extract_data.xq* y de *generate_report.xsl*, notificamos al usuario, cual fue el error cometido si es que hubo alguno. Sino, imprimimos a salida estandar que no hubo errores.
 ```sh
 if [ $errno -ne 0 ]
 then
   echo -e "\n${RED}[ERROR]${WHITE} Data was not processed correcty, errors were reported"
   echo -e "\n${ORANGE}[ERRNO] Error number = ${errno}${WHITE}"
-  
-  case $errno in
-  1) echo -e "${ORANGE}[DESC ] Decimal number must be greater than 0${WHITE}";;
-  2) echo -e "${ORANGE}[DESC ] The argument recived was not a decimal number${WHITE}";;
-  3) echo -e "${ORANGE}[DESC ] Maximum argument count exceeded${WHITE}";;
-  *) echo -e "${ORANGE}[DESC ] Unknown error${WHITE}";;
-  esac
+  echo -e "${ORANGE}[DESC ] ${desc}${WHITE}"
 else
   echo -e "\n${GREEN}[INFO ]${WHITE} Data processing finished no errors were found"
 fi
@@ -112,13 +121,14 @@ exit $errno
 ## El archivo *extract_data.xq* se encarga de procesar los datos recibidos mediante la API.
 ### Algunos comentarios sobre el codigo:
 #
-Esta primera linea del xQuery es para poder recibir mediante una variable externa, si hubo algun error previo en la ejecución del *<text>tpe.sh</text>*
+Esta primera linea del xQuery es para poder recibir mediante una variable externa, si hubo algun error previo en la ejecución del *<text>tpe.sh</text>* y la descripción de este.
 ```xq
 declare variable $errno external;
+declare variable $desc external;
 ```
 
 La única función que implementamos, se encarga de unificar el comportamiento que necesitaríamos para generar los nodos con la información de los aeropuertos, tanto para `<departure_airport/>` como para `<arrival_airport>`. Recibe por parametro el código iata y busca la información necesaria para crear los 2 nodos hijos `<country/>` y `<name/>`.
-En caso de que la información no exista, retorna los dos nodos vacíos.
+En caso de que la información no exista, no retorna ningun nodo.
 ```xq
 declare function local:buildAirport($iata as element()) as node()* {
     let $airport:= (doc("airports.xml")/root/response/response[./iata_code = $iata])[1]
@@ -126,30 +136,31 @@ declare function local:buildAirport($iata as element()) as node()* {
     return
         if($airport)
         then
-            (<country>{$countryName/text()}</country>, $airport/name)
-        else
-            (<country/>, <name/>)
+            typeswitch ($iata) 
+                case element(arr_iata) return    
+                    <arrival_airport>
+                        <country>{$countryName/text()}</country>
+                        {$airport/name}
+                    </arrival_airport>
+                case element(dep_iata) return 
+                    <departure_airport>
+                        <country>{$countryName/text()}</country>
+                        {$airport/name}
+                    </departure_airport>
+                default return ()
+        else()
 };
 ```
 
 Luego tenemos la seccion que se encarga de armar el .xml dados los datos del API
 #
-En esta primera parte nos encargamos de hacer el error handling, para ello utilizamos la variable externa `$errno`, la cual nos indica si hubo un error en la ejecución del *<text>tpe.sh</text>* y cual fue el mismo.
+En esta primera parte nos encargamos de hacer el error handling, para ello utilizamos la variable externa `$errno`, la cual nos indica si hubo un error en la ejecución del *<text>tpe.sh</text>* y cual fue el mismo. Si hubo algun error, se genera un nodo `<error>` con la descripcion del mismo mediante la variable externa `desc`. 
 ```xq
 <flights_data>
 {
-    if($errno = 1)
+    if($errno != 0)
     then
-        <error>Decimal number must be greater than 0</error>
-    else if($errno = 2)
-    then
-        <error>The argument recived was not a decimal number</error>
-    else if($errno = 3)
-    then
-        <error>Maximum argument count exceeded</error>
-    else if($errno != 0)
-    then
-        <error>Unknown error</error>
+        <error>{$desc}</error>
     else
 ```
 En caso de que no hubiera ningun error, empezamos a armar los nodos `<flight>` a partir de la información de los archivos *flights.xml*, *airports.xml* y *countries.xml*.
@@ -164,9 +175,16 @@ Una vez ya ordenados pasamos a moldear la información acorde a lo necesario. Ca
     return
         <flight id="{$fresponse/hex}">
 ```
-Al generar los nodos hijos, debemos buscar su información saltando entre los archivos que nos dio el API. Mezclando la información generamos el nodo `<country>` con el país de origen del avion. Luego generamos el nodo `<position>` el cual tiene como hijos la latitud `<lat>` y longitud `<lng>` en la cual se encuentra el avión en el momento. El tercer nodo hijo es `<status>` donde se almacena el estado del vuelo (en-route, sheduled o landed). 
+Al generar los nodos hijos, debemos buscar su información saltando entre los archivos que nos dio el API. Mezclando la información generamos el nodo `<country>`, (si este existe) con el país de origen del avion. Luego generamos el nodo `<position>` el cual tiene como hijos la latitud `<lat>` y longitud `<lng>` en la cual se encuentra el avión en el momento. El tercer nodo hijo es `<status>` donde se almacena el estado del vuelo (en-route, sheduled o landed). 
 ```xq
-            <country>{(doc("countries.xml")/root/response/response[./code = $fresponse/flag]/name)[1]/text()}</country>
+            {
+                let $country:= (doc("countries.xml")/root/response/response[./code = $fresponse/flag]/name)[1]
+                return
+                    if($country)
+                    then
+                        <country>{$country/text()}</country>
+                    else()
+            }
             <position>
                 {$fresponse/lat}
                 {$fresponse/lng}
@@ -175,20 +193,17 @@ Al generar los nodos hijos, debemos buscar su información saltando entre los ar
 ```
 Por último estan los `<departure_airport>` y `<arrival_airport>` que guardan la información de el aeropuerto de salida y el de llegada. Estos nodos no estan siempre presentes, por lo que primero preguntamos si su "código" existe debido a que la funcion que escribimos no puede recibir un nodo vacío. Si los codigos de los aeropuertos no estan presentes, simplmente no creamos el nodo. Si lo estan llamamos a la función *buildAirport()* para que la misma nos retorne los nodos con la información acerca del aeropuerto
 ```xq
+            {$fresponse/status}
             {
                 if($fresponse/dep_iata)
                 then
-                    <departure_airport>
-                        {local:buildAirport($fresponse/dep_iata)}
-                    </departure_airport>
+                    local:buildAirport($fresponse/dep_iata)
                 else()
             }
             {
                 if($fresponse/arr_iata)
                 then
-                    <arrival_airport>
-                        {local:buildAirport($fresponse/arr_iata)}
-                    </arrival_airport>
+                    local:buildAirport($fresponse/arr_iata)
                 else()
             }
         </flight>
