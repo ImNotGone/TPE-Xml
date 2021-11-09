@@ -206,11 +206,11 @@ Esta primera linea del XSLT es para poder recibir mediante variables externas la
 <xsl:param name="ALL_VALUES" required="yes"/>
 ```
 
-Se declara que la salida va a ser solamente texto y no otro tipo de documento, tambien es necesario para poder mostrar los *&*
+Se declara que la salida va a ser solamente texto y no otro tipo de documento. Tambien es necesario para poder mostrar los *&*.
 ``` xsl
 <xsl:output method="text"/>
 ```
-La transformación comienza determinando si se va a generar el reporte o si se va a mostrar un error
+La transformación comienza determinando si se va a generar el reporte o si se va a mostrar un error.
 
 ``` xsl
 <xsl:template match="/">
@@ -230,9 +230,7 @@ Si no se encuentra ningun nodo error, entonces no ocurrió ningun error en el pr
     <xsl:otherwise>
         <xsl:call-template name="getTitle" />
         <xsl:call-template name="getTable"/> 
-        <xsl:text>
-            \end{document}
-        </xsl:text>
+        \end{document}
     </xsl:otherwise>    
 </xsl:choose>
 </xsl:template>
@@ -241,18 +239,16 @@ Si no se encuentra ningun nodo error, entonces no ocurrió ningun error en el pr
 Este template genera las lineas necesarias para que latex cree el documento y el título. Se utiliza el formato *article* con tipo de hoja *a4* y tamaño de letra *10*. Se declara el margen que se va a utilizar junto al título, autor, fecha y las lineas que permitirarn generar el documento y el título. 
 ```xsl
 <xsl:template name="getTitle">
-    <xsl:text>
-        \documentclass[a4paper, 10pt]{article}
-        \usepackage{longtable}
-        \usepackage[margin=1in]{geometry}
+    \documentclass[a4paper, 10pt]{article}
+    \usepackage{longtable}
+    \usepackage[margin=1in]{geometry}
             
-        \begin{document}
-        \title{Flight Report}
-        \author{XML Group 01}
-        \date{\today}
-        \maketitle
-        \newpage
-    </xsl:text>
+    \begin{document}
+    \title{Flight Report}
+    \author{XML Group 01}
+    \date{\today}
+    \maketitle
+    \newpage
 </xsl:template>
 ```
 Una vez generado el documento y el título, correponde generar la tabla con los vuelos, de esto se encarga el template *getTable*. En primer lugar se llama al template auxiliar *getTableHeader* que generará la tabla y el encabezado de esta. 
@@ -264,12 +260,10 @@ Una vez generado el documento y el título, correponde generar la tabla con los 
 Abajo se encuentra el codigo del template. Se genera la tabla y se establecen los anchos que ocupara cada columna de esta. La linea *\hline* corresponde a una línea separadora de fila, el *&amp* correponde a una línea separadora de columna y el *\\\\* indica un fin de fila.    
 ```xsl
 <xsl:template name="getTableHeader">
-    <xsl:text>
-        \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
-        \hline
-        Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
-        \hline
-    </xsl:text>
+    \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
+    \hline
+    Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
+    \hline
 </xsl:template>
 ```
 Una vez generada la tabla se llama al template *getTableRow*. Este template recibira un parametro con cada uno de los datos necesarios de un vuelo y se encargará de generar la fila de la tabla correspondiente al vuelo. Se llamará *qty* veces a este template, si *qty* es igual a *ALL_VALUES* se llamara para todos los vuelos.
@@ -287,7 +281,7 @@ Una vez generada la tabla se llama al template *getTableRow*. Este template reci
             </xsl:if>
         </xsl:for-each>
 ```
-Abajo se encuentra el código del template. Cada parametro recibido es asignado en su respectiva columna dentro de la fila, se indica el final de la fila con el *\\\\* y se agrega la linea separadora de fila.
+Abajo se encuentra el código del template. Cada parametro recibido es asignado en su respectiva columna dentro de la fila, se indica el final de la fila con el *\\\\* y se agrega la linea separadora de fila. Como se declaro al principio que el output es un texto, el llamado de la funcion */text()* en los nodos es redundante y no se incluye.
 ``` xsl
 <xsl:template name="getTableRow">
     <xsl:param name="country" />
@@ -296,15 +290,14 @@ Abajo se encuentra el código del template. Cada parametro recibido es asignado 
     <xsl:param name="departure_airport" />
     <xsl:param name="arrival_airport" />
     <xsl:param name="id" />
-        <xsl:value-of select="$id"/> &amp; <xsl:value-of select="$country/text()"/> &amp; (<xsl:value-of select="$position/lat/text()"/>, <xsl:value-of select="$position/lng/text()"/>) &amp; <xsl:value-of select="$status/text()"/> &amp; <xsl:value-of select="$departure_airport/text()"/> &amp; <xsl:value-of select="$arrival_airport/text()"/> \\
+        <xsl:value-of select="$id"/> &amp; <xsl:value-of select="$country"/> &amp; (<xsl:value-of select="$position/lat"/>, <xsl:value-of select="$position/lng"/>) &amp; <xsl:value-of select="$status"/> &amp; <xsl:value-of select="$departure_airport"/> &amp; <xsl:value-of select="$arrival_airport"/> \\
         \hline
 </xsl:template>
 ```
 Una vez generado todo el contenido de la tabla, se le indica a latex que la tabla ha terminado.
 ``` xsl        
-        <xsl:text>
-            \end{longtable}
-        </xsl:text>
+        \end{longtable}
+
     </xsl:template>
 ```
 

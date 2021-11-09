@@ -14,27 +14,23 @@
         <xsl:otherwise>
             <xsl:call-template name="getTitle" />
             <xsl:call-template name="getTable"/> 
-            <xsl:text>
-                \end{document}
-            </xsl:text>
+            \end{document}
         </xsl:otherwise>    
     </xsl:choose>
         
     </xsl:template>
 
     <xsl:template name="getTitle">
-        <xsl:text>
-            \documentclass[a4paper, 10pt]{article}
-            \usepackage{longtable}
-            \usepackage[margin=1in]{geometry}
+        \documentclass[a4paper, 10pt]{article}
+        \usepackage{longtable}
+        \usepackage[margin=1in]{geometry}
             
-            \begin{document}
-            \title{Flight Report}
-            \author{XML Group 01}
-            \date{\today}
-            \maketitle
-            \newpage
-        </xsl:text>
+        \begin{document}
+        \title{Flight Report}
+        \author{XML Group 01}
+        \date{\today}
+        \maketitle
+        \newpage
     </xsl:template>
 
 
@@ -53,20 +49,16 @@
                 </xsl:call-template>
             </xsl:if>
         </xsl:for-each>
-        <xsl:text>
-            \end{longtable}
-        </xsl:text>
+        \end{longtable}
     </xsl:template>
    
     <xsl:template name="getTableHeader">
-        <xsl:text>
-            \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
-            \hline
-            Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
-            \hline
-        </xsl:text>
+        \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
+        \hline
+        Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
+        \hline
     </xsl:template>
-    
+
     <xsl:template name="getTableRow">
         <xsl:param name="country" />
         <xsl:param name="position" />
@@ -74,8 +66,8 @@
         <xsl:param name="departure_airport" />
         <xsl:param name="arrival_airport" />
         <xsl:param name="id" />
-            <xsl:value-of select="$id"/> &amp; <xsl:value-of select="$country/text()"/> &amp; (<xsl:value-of select="$position/lat/text()"/>, <xsl:value-of select="$position/lng/text()"/>) &amp; <xsl:value-of select="$status/text()"/> &amp; <xsl:value-of select="$departure_airport/text()"/> &amp; <xsl:value-of select="$arrival_airport/text()"/> \\
-            \hline
+        <xsl:value-of select="$id"/> &amp; <xsl:value-of select="$country"/> &amp; (<xsl:value-of select="$position/lat"/>, <xsl:value-of select="$position/lng"/>) &amp; <xsl:value-of select="$status"/> &amp; <xsl:value-of select="$departure_airport"/> &amp; <xsl:value-of select="$arrival_airport"/> \\
+        \hline
     </xsl:template>
 
 </xsl:stylesheet>
