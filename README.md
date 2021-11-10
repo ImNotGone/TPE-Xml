@@ -77,10 +77,11 @@ then
   errno=4
 fi
 ```
-Una vez terminadas las validaciones, verificamos que no hubiese ningun error y en ese caso descargamos todos los archivos de la API. Si hubo algun error, no descargamos nada y notificamos al usuario de lo mismo.
+Una vez terminadas las validaciones, verificamos que no hubiese ningun error y en ese caso eliminamos las versiones viejas de todos los archivos de la API si existieran, y descargamos todos los archivos nuevamente. Si hubo algun error, no descargamos nada y notificamos al usuario de ello mismo.
 ```sh
 if [ $errno -eq 0 ]
 then
+  rm -f airports.xml countries.xml flights.xml
   echo -e "${GREEN}[INFO ]${WHITE} Downloading airports data ..." 
   curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml -s
   echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File airports.xml \t created"

@@ -51,6 +51,7 @@ fi
 
 if [ $errno -eq 0 ]
 then
+  rm -f airports.xml countries.xml flights.xml
   echo -e "${GREEN}[INFO ]${WHITE} Downloading airports data ..." 
   curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml -s
   echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File airports.xml \t created"
