@@ -52,13 +52,13 @@ fi
 if [ $errno -eq 0 ]
 then
   echo -e "${GREEN}[INFO ]${WHITE} Downloading airports data ..." 
-  #curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml -s
+  curl https://airlabs.co/api/v9/airports.xml?api_key=${AIRLABS_API_KEY} > airports.xml -s
   echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File airports.xml \t created"
   echo -e "${GREEN}[INFO ]${WHITE} Downloading countries data ..." 
-  #curl https://airlabs.co/api/v9/countries.xml?api_key=${AIRLABS_API_KEY} > countries.xml -s
+  curl https://airlabs.co/api/v9/countries.xml?api_key=${AIRLABS_API_KEY} > countries.xml -s
   echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File countries.xml \t created"
   echo -e "${GREEN}[INFO ]${WHITE} Downloading flights data ..." 
-  #curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml -s
+  curl https://airlabs.co/api/v9/flights.xml?api_key=${AIRLABS_API_KEY} > flights.xml -s
   echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights.xml \t created"
 else
   echo -e "${RED}[ERROR]${WHITE} Api data won't be downloaded, errors will be reported"
