@@ -66,10 +66,13 @@ else
 fi
 
 echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
-if [ $errno -ne 0 ] && [ [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ] ]
+if [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ]
 then
-  desc="Missing necessary API files"
-  errno=5
+  if [ $errno -ne 0 ]
+  then
+    desc="Missing necessary API files"
+    errno=5
+  fi
 fi
 java net.sf.saxon.Query ./extract_data.xq errno=${errno} desc="${desc}"> ./flights_data.xml
 echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights_data.xml \t created"
