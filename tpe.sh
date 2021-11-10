@@ -65,6 +65,11 @@ else
 fi
 
 echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
+if [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ]
+then
+  desc="Missing necessary files"
+  errno=5
+fi
 java net.sf.saxon.Query ./extract_data.xq errno=${errno} desc="${desc}"> ./flights_data.xml
 echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights_data.xml \t created"
 
