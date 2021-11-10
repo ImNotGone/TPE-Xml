@@ -165,7 +165,7 @@ Luego tenemos la seccion que se encarga de armar el .xml dados los datos del API
 #
 En esta primera parte nos encargamos de hacer el error handling, para ello utilizamos la variable externa `$errno`, la cual nos indica si hubo un error en la ejecución del *<text>tpe.sh</text>* y cual fue el mismo. Si hubo algun error, se genera un nodo `<error>` con la descripcion del mismo mediante la variable externa `desc`. 
 ```xq
-<flights_data>
+<flights_data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flights_data.xsd">
 {
     if($errno != 0)
     then
@@ -287,6 +287,7 @@ Abajo se encuentra el codigo del template. Se genera la tabla y se establecen lo
     \begin{longtable}{| p{.10\textwidth}| p{.13\textwidth}| p{.12\textwidth}| p{.10\textwidth}| p{.19\textwidth}| p{.19\textwidth}|}
     \hline
     Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
+    \hline
     \hline
 </xsl:template>
 ```

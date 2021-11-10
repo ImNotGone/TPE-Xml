@@ -57,6 +57,7 @@
         \hline
         Flight Id &amp; Country &amp; Position &amp; Status &amp; Departure Airport &amp; Arrival Airport \\
         \hline
+        \hline
     </xsl:template>
 
     <xsl:template name="getTableRow">
