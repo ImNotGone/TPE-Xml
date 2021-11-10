@@ -42,7 +42,7 @@ declare -r GREEN="\e[32m"
 declare -r ORANGE="\e[38;5;208m"
 declare -r RETURN="\e[1A\e[K"
 ```
-Iniciamos la variable `errno` en 0 y `desc` en "no error", indicando de esta manera q no hay errores e ininciamos `qty` con el valor de la constante `ALL_VALUES`. Luego nos fijamos la cantidad de argumentos que recibimos del usuario (`$#`). Si la cantidad es 0, no hacemos nada y se procesa toda la información recibida. Si la cantidad es 1, verificamos que el parametro sea un numero positivo, sino actualizamos `errno` y `desc` por lo que los datos no se procesaran. Si la cantidad es mayor a 1, tambien actualizamos `errno` y `desc` por lo que los datos tampoco serán procesados.
+Iniciamos la variable `errno` en 0 y `desc` en "no error", indicando de esta manera q no hay errores e iniciamos `qty` con el valor de la constante `ALL_VALUES`. Luego nos fijamos la cantidad de argumentos que recibimos del usuario (`$#`). Si la cantidad es 0, no hacemos nada y se procesa toda la información recibida. Si la cantidad es 1, verificamos que el parametro sea un numero positivo, sino actualizamos `errno` y `desc` por lo que los datos no se procesaran. Si la cantidad es mayor a 1, tambien actualizamos `errno` y `desc` por lo que los datos tampoco serán procesados.
 
 En caso de que el usuario envíe correctamente un único numero positivo como parametro se lo asignamos a `qty` (`qty=$1`).
 
@@ -94,9 +94,14 @@ else
   echo -e "${RED}[ERROR]${WHITE} Api data won't be downloaded, errors will be reported"
 fi
 ```
-Luego hacemos los llamados a *extract_data.xq* y a *generate_report.xsl* pasandole las variables necesarias para su correcto funcionamieto. A *extract_data.xq* le pasamos `errno` para que verifique si hubo algun error y a *generate_report.xsl* le pasamos `qty` y `ALL_VALUES` para que limite o no la información en la salida.
+Luego hacemos los llamados a *extract_data.xq* y a *generate_report.xsl* pasandole las variables necesarias para su correcto funcionamieto. A *extract_data.xq* le pasamos `errno` y `desc` para que verifique si hubo algun error y generar un nodo con su descripción si es necesario además a *generate_report.xsl* le pasamos `qty` y `ALL_VALUES` para que limite o no la información en la salida. En caso de que no se hubieran generado los archivos necesarios, genero un nuevo error.
 ```sh
 echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
+if [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ]
+then
+  desc="Missing necessary API files"
+  errno=5
+fi
 java net.sf.saxon.Query ./extract_data.xq errno=${errno} desc="${desc}"> ./flights_data.xml
 echo -e "${RETURN}${GREEN}[INFO ]${WHITE} File flights_data.xml \t created"
 
@@ -211,7 +216,7 @@ Por último estan los `<departure_airport>` y `<arrival_airport>` que guardan la
 </flights_data>
 ```
 # generate_report.xsl
-## El archivo *generate_report.xsl* se encarga de procesar el output de *extract_data.xq* y armar un reporte en formato latex llamado *report.tex*
+## El archivo *generate_report.xsl* se encarga de procesar el output de *extract_data.xq* y armar un reporte en formato LaTeX llamado *report.tex*
 
 ### Algunos comentarios sobre el código:
 #
@@ -230,7 +235,7 @@ La transformación comienza determinando si se va a generar el reporte o si se v
 ``` xsl
 <xsl:template match="/">
 ```
-Si se encuentra algun nodo error, esto implica que ocurrió un error en el programa, por lo tanto no corresponde generar el reporte. Solamente se genera texto explicando el error obtenido. El comando *\verb|...|* permite escapar caracteres reservados de latex como el "*_*" que se necesita en un mensaje de error.
+Si se encuentra algun nodo error, esto implica que ocurrió un error en el programa, por lo tanto no corresponde generar el reporte. Solamente se genera texto explicando el error obtenido. El comando *\verb|...|* permite escapar caracteres reservados de LaTeX como el "*_*" que se necesita en un mensaje de error.
 ```xsl    
 <xsl:choose>
     <xsl:when test="//flights_data/error">
@@ -240,7 +245,7 @@ Si se encuentra algun nodo error, esto implica que ocurrió un error en el progr
         \end{document}
     </xsl:when>
 ```
-Si no se encuentra ningun nodo error, entonces no ocurrió ningun error en el programa, por lo que corresponde generar el reporte. Se llaman al template *getTitle*, *getTable* y se agrega al final la linea *\end{document}* que le indica a latex que termina el archivo.
+Si no se encuentra ningun nodo error, entonces no ocurrió ningun error en el programa, por lo que corresponde generar el reporte. Se llaman al template *getTitle*, *getTable* y se agrega al final la linea *\end{document}* que le indica a LaTeX que termina el archivo.
 ```xsl        
     <xsl:otherwise>
         <xsl:call-template name="getTitle" />
@@ -251,7 +256,7 @@ Si no se encuentra ningun nodo error, entonces no ocurrió ningun error en el pr
 </xsl:template>
 ```
 
-Este template genera las lineas necesarias para que latex cree el documento y el título. Se utiliza el formato *article* con tipo de hoja *a4* y tamaño de letra *10*. Se declara el margen que se va a utilizar junto al título, autor, fecha y las lineas que permitirarn generar el documento y el título. 
+Este template genera las lineas necesarias para que LaTeX cree el documento y el título. Se utiliza el formato *article* con tipo de hoja *a4* y tamaño de letra *10*. Se declara el margen que se va a utilizar junto al título, autor, fecha y las lineas que permitirarn generar el documento y el título. 
 ```xsl
 <xsl:template name="getTitle">
     \documentclass[a4paper, 10pt]{article}
@@ -309,7 +314,7 @@ Abajo se encuentra el código del template. Cada parametro recibido es asignado 
         \hline
 </xsl:template>
 ```
-Una vez generado todo el contenido de la tabla, se le indica a latex que la tabla ha terminado.
+Una vez generado todo el contenido de la tabla, se le indica a LaTeX que la tabla ha terminado.
 ``` xsl        
         \end{longtable}
 
