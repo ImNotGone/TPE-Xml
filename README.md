@@ -98,7 +98,7 @@ fi
 Luego hacemos los llamados a *extract_data.xq* y a *generate_report.xsl* pasandole las variables necesarias para su correcto funcionamieto. A *extract_data.xq* le pasamos `errno` y `desc` para que verifique si hubo algun error y generar un nodo con su descripción si es necesario además a *generate_report.xsl* le pasamos `qty` y `ALL_VALUES` para que limite o no la información en la salida. En caso de que no se hubieran generado los archivos necesarios, genero un nuevo error.
 ```sh
 echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
-if [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ]
+if [$errno -ne 0] && [ [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ] ]
 then
   desc="Missing necessary API files"
   errno=5

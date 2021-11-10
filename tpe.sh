@@ -66,7 +66,7 @@ else
 fi
 
 echo -e "${GREEN}[INFO ]${WHITE} Processing *.xml ..."
-if [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ]
+if [$errno -ne 0] && [ [ ! -e airports.xml ] || [ ! -e countries.xml ] || [ ! -e flights.xml ] ]
 then
   desc="Missing necessary API files"
   errno=5
